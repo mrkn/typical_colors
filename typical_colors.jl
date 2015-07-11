@@ -1,0 +1,62 @@
+using Images, Color, FixedPointNumbers
+using Clustering
+using ArgParse
+
+hsv2vec(p::HSV{Float32}) = [p.h, p.s, p.v]::Array{Float32}
+vec2hsv(x::Array{Float32}) = HSV{Float32}(x[1], x[2], x[3])
+
+function extract_typical_colors(filename, k)
+  image = imread(filename)
+
+  hsv_image = convert(Image{HSV}, float32(image))
+
+  hsv_pixels = filter(
+    x -> (x.s > 0.5 && x.v > 0.5),
+    hsv_image.data
+  )
+
+  pixel_vectors = Array(Float32, 3, length(hsv_pixels))
+
+  for i in 1:length(hsv_pixels)
+    pixel_vectors[:, i] = hsv2vec(hsv_pixels[i])
+  end
+
+  result = kmeans(pixel_vectors, k)
+
+  for i in 1:size(result.centers, 2)
+    hsv = vec2hsv(result.centers[:, i])
+    rgb = convert(RGB, hsv)
+    rgb_vec = round(Uint8, 255*[rgb.r, rgb.g, rgb.b])
+    @printf("[%d] rgv(#%02x%02x%02x), hsv(%.2f, %.3f, %.3f)\n", i, rgb_vec[1], rgb_vec[2], rgb_vec[3], hsv.h, hsv.s, hsv.v)
+  end
+end
+
+function parse_cmdline(args)
+  s = ArgParseSettings(
+    description = "This program extract typical colors from the given images"
+  )
+  @add_arg_table s begin
+    "-k"
+      help = "the number of typical colors to be extracted"
+      arg_type = Int
+      default = 3
+    "filenames"
+      nargs = '*'
+      help = "an image filenames"
+      required = true
+  end
+
+  return parse_args(args, s)
+end
+
+function main(args)
+  parsed_args = parse_cmdline(args)
+  k = parsed_args["k"]
+  for filename in parsed_args["filenames"]
+    @printf("Typical colors of %s:\n", filename)
+    extract_typical_colors(filename, k)
+    @printf("\n")
+  end
+end
+
+main(ARGS)
