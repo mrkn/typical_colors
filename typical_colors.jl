@@ -27,7 +27,7 @@ function extract_typical_colors(filename, k)
     hsv = vec2hsv(result.centers[:, i])
     rgb = convert(RGB, hsv)
     rgb_vec = round(Uint8, 255*[rgb.r, rgb.g, rgb.b])
-    @printf("[%d] rgv(#%02x%02x%02x), hsv(%.2f, %.3f, %.3f)\n", i, rgb_vec[1], rgb_vec[2], rgb_vec[3], hsv.h, hsv.s, hsv.v)
+    @printf("[%d] rgb(#%02x%02x%02x), hsv(%.2f, %.3f, %.3f)\n", i, rgb_vec[1], rgb_vec[2], rgb_vec[3], hsv.h, hsv.s, hsv.v)
   end
 end
 
