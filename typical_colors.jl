@@ -5,15 +5,19 @@ using ArgParse
 hsv2vec(p::HSV{Float32}) = [p.h, p.s, p.v]::Array{Float32}
 vec2hsv(x::Array{Float32}) = HSV{Float32}(x[1], x[2], x[3])
 
-function extract_typical_colors(filename, k)
+function extract_typical_colors(filename, k; filter_pixels=false)
   image = imread(filename)
 
   hsv_image = convert(Image{HSV}, float32(image))
 
-  hsv_pixels = filter(
-    x -> (x.s > 0.5 && x.v > 0.5),
-    hsv_image.data
-  )
+  hsv_pixels = hsv_image.data
+
+  if filter_pixels
+    hsv_pixels = filter(
+      x -> (x.s > 0.5 && x.v > 0.5),
+      hsv_image.data
+    )
+  end
 
   pixel_vectors = Array(Float32, 3, length(hsv_pixels))
 
@@ -40,6 +44,9 @@ function parse_cmdline(args)
       help = "the number of typical colors to be extracted"
       arg_type = Int
       default = 3
+    "--filter"
+      action = :store_true
+      help = "filter pixels by S > 0.5 && V > 0.5 on HSV color space"
     "filenames"
       nargs = '*'
       help = "an image filenames"
@@ -54,7 +61,7 @@ function main(args)
   k = parsed_args["k"]
   for filename in parsed_args["filenames"]
     @printf("Typical colors of %s:\n", filename)
-    extract_typical_colors(filename, k)
+    extract_typical_colors(filename, k, filter_pixels=parsed_args["filter"])
     @printf("\n")
   end
 end
