@@ -1,0 +1,1 @@
+# Typical color extraction example
