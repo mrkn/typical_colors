@@ -2,6 +2,8 @@
 
 ## Usage
 
+### typical_colors.jl
+
 ```
 $ julia typical_colors.jl --help
 usage: typical_colors.jl [-k K] [-h] filenames...
@@ -16,3 +18,11 @@ optional arguments:
               Int64, default: 3)
   -h, --help  show this help message and exit
 ```
+
+### Sinatra app
+
+```
+$ bundle install
+$ bundle exec rackup
+```
+

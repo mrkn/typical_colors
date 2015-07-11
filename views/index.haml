@@ -1,0 +1,37 @@
+%h1 Typical Colors
+
+%form{ action: '/', method: 'POST', enctype: 'multipart/form-data' }
+  %input{ type: 'file', name: 'image_file' }
+  %input{ type: 'submit' }
+
+- if @filename
+  %h2= @filename
+
+  %div{ style: 'float: left; margin-right: 32px;' }
+    %img{ src: "img/#{@filename}" }
+
+  - if @filtered_result
+    %h3 Filtered result:
+
+    %ul
+      - @filtered_result.each_line do |line|
+        - next unless line =~ /rgb\((\#[a-f0-9]+)\)/
+        - color = $1
+        %li
+          %span{style: "display: inline-block; width: 32px; height: 32px; background-color: #{$1}; border: 2px solid #fff; vertical-align: middle;"}
+          %span{style: 'font-family: monospace;'}
+            #{color}
+
+  - if @non_filtered_result
+    %h3 Non-filtered result:
+
+    %ul
+      - @non_filtered_result.each_line do |line|
+        - next unless line =~ /rgb\((\#[a-f0-9]+)\)/
+        - color = $1
+        %li
+          %span{style: "display: inline-block; width: 32px; height: 32px; background-color: #{$1}; border: 2px solid #fff; vertical-align: middle;"}
+          %span{style: 'font-family: monospace;'}
+            #{color}
+
+  %div{ style: 'clear: both;' }
