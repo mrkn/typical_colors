@@ -1,4 +1,4 @@
-using Images, Color, FixedPointNumbers
+using Images, Colors, FixedPointNumbers
 using Clustering
 using ArgParse
 
