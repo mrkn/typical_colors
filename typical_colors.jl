@@ -2,29 +2,42 @@ using Images, Colors, FixedPointNumbers
 using Clustering
 using ArgParse
 
-hsv2vec(p::HSV{Float32}) = [p.h, p.s, p.v]::Array{Float32}
-vec2hsv(x::Array{Float32}) = HSV{Float32}(x[1], x[2], x[3])
+function filter_hsv_pixels(hsv_pixels::Array{HSV{Float32}, 2})
+  filtered_pixels::Vector{HSV{Float32}} = []
+  for i in 1:endof(hsv_pixels)
+    x = hsv_pixels[i]
+    if x.s > 0.5 && x.v > 0.5
+      push!(filtered_pixels, x)
+    end
+  end
+  return filtered_pixels
+end
+
+function hsv2vec(hsv_pixels::Vector{HSV{Float32}})
+  pixel_vectors = Array(Float32, 3, length(hsv_pixels))
+  for i in 1:endof(hsv_pixels)
+    pixel = hsv_pixels[i]
+    pixel_vectors[1, i] = pixel.h
+    pixel_vectors[2, i] = pixel.s
+    pixel_vectors[3, i] = pixel.v
+  end
+  return pixel_vectors
+end
+
+vec2hsv(x::Vector{Float32}) = HSV{Float32}(x[1], x[2], x[3])
 
 function extract_typical_colors(filename, k; filter_pixels=false)
   image = imread(filename)
 
   hsv_image = convert(Image{HSV}, float32(image))
 
-  hsv_pixels = hsv_image.data
-
   if filter_pixels
-    hsv_pixels = filter(
-      x -> (x.s > 0.5 && x.v > 0.5),
-      hsv_image.data
-    )
+    hsv_pixels = filter_hsv_pixels(hsv_image.data)
+  else
+    hsv_pixels = hsv_image.data
   end
 
-  pixel_vectors = Array(Float32, 3, length(hsv_pixels))
-
-  for i in 1:length(hsv_pixels)
-    pixel_vectors[:, i] = hsv2vec(hsv_pixels[i])
-  end
-
+  pixel_vectors = hsv2vec(hsv_pixels)
   result = kmeans(pixel_vectors, k)
 
   for i in 1:size(result.centers, 2)
