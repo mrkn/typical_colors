@@ -2,7 +2,7 @@ using Images, Colors, FixedPointNumbers
 using Clustering
 using ArgParse
 
-function filter_hsv_pixels(hsv_pixels::Array{HSV{Float32}, 2})
+function filter_hsv_pixels{N}(hsv_pixels::Array{HSV{Float32}, N})
   filtered_pixels::Vector{HSV{Float32}} = []
   for i in 1:endof(hsv_pixels)
     x = hsv_pixels[i]
@@ -13,7 +13,7 @@ function filter_hsv_pixels(hsv_pixels::Array{HSV{Float32}, 2})
   return filtered_pixels
 end
 
-function hsv2vec(hsv_pixels::Vector{HSV{Float32}})
+function hsv2vec{N}(hsv_pixels::Array{HSV{Float32},N})
   pixel_vectors = Array(Float32, 3, length(hsv_pixels))
   for i in 1:endof(hsv_pixels)
     pixel = hsv_pixels[i]
@@ -75,7 +75,7 @@ if !isinteractive()
     k = parsed_args["k"]
     for filename in parsed_args["filenames"]
       @printf("Typical colors of %s:\n", filename)
-      extract_typical_colors(filename, k, filter_pixels=parsed_args["filter"])
+      @time extract_typical_colors(filename, k, filter_pixels=parsed_args["filter"])
       @printf("\n")
     end
   end
