@@ -56,14 +56,16 @@ function parse_cmdline(args)
   return parse_args(args, s)
 end
 
-function main(args)
-  parsed_args = parse_cmdline(args)
-  k = parsed_args["k"]
-  for filename in parsed_args["filenames"]
-    @printf("Typical colors of %s:\n", filename)
-    extract_typical_colors(filename, k, filter_pixels=parsed_args["filter"])
-    @printf("\n")
+if !isinteractive()
+  function main(args)
+    parsed_args = parse_cmdline(args)
+    k = parsed_args["k"]
+    for filename in parsed_args["filenames"]
+      @printf("Typical colors of %s:\n", filename)
+      extract_typical_colors(filename, k, filter_pixels=parsed_args["filter"])
+      @printf("\n")
+    end
   end
-end
 
-main(ARGS)
+  main(ARGS)
+end
